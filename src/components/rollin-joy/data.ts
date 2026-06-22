@@ -54,13 +54,20 @@ export interface DayTemplate {
   stops: StopTemplate[];
 }
 
+export type Climate = "calor" | "templado" | "frio";
+
 export interface Destination {
   id: string;
   name: string;
   country: string;
+  flag: string; // emoji flag
+  region: "Sudamérica" | "Caribe" | "Norteamérica" | "Europa";
   blurb: string;
   cover: string; // css gradient
   rio?: boolean; // use the painted Rio cover scene
+  trending?: boolean; // 🔥 badge in the picker
+  vibeTags: Interest[]; // what this destination is great for (picker + quiz)
+  climate: Climate;
   perPerson: { low: number; balance: number; exp: number }; // est USD pp for 4 nights
   days: DayTemplate[];
 }
@@ -89,9 +96,14 @@ export const DESTINATIONS: Destination[] = [
     id: "rio",
     name: "Río de Janeiro",
     country: "Brasil",
+    flag: "🇧🇷",
+    region: "Sudamérica",
     blurb: "Playa, samba y atardeceres que se aplauden.",
     cover: "linear-gradient(180deg, #FFB26B 0%, #FF8C6B 35%, #E9627A 70%, #5B4A78 100%)",
     rio: true,
+    trending: true,
+    vibeTags: ["Playa", "Vida nocturna", "Instagrameable", "Gastronomía"],
+    climate: "calor",
     perPerson: { low: 620, balance: 1100, exp: 1900 },
     days: [
       {
@@ -167,8 +179,12 @@ export const DESTINATIONS: Destination[] = [
     id: "bsas",
     name: "Buenos Aires",
     country: "Argentina",
+    flag: "🇦🇷",
+    region: "Sudamérica",
     blurb: "Parrilla, milonga y librerías eternas.",
     cover: "linear-gradient(180deg, #6E8BB0 0%, #8E7BA6 45%, #C97A8E 80%, #E0A45C 100%)",
+    vibeTags: ["Gastronomía", "Cultura", "Vida nocturna", "Shopping"],
+    climate: "templado",
     perPerson: { low: 480, balance: 820, exp: 1500 },
     days: [
       {
@@ -224,8 +240,13 @@ export const DESTINATIONS: Destination[] = [
     id: "cartagena",
     name: "Cartagena",
     country: "Colombia",
+    flag: "🇨🇴",
+    region: "Caribe",
     blurb: "Murallas, Caribe y noches de salsa.",
     cover: "linear-gradient(180deg, #34C6C9 0%, #3E9FC0 40%, #7B6FB0 75%, #E0668A 100%)",
+    trending: true,
+    vibeTags: ["Playa", "Cultura", "Instagrameable", "Relax"],
+    climate: "calor",
     perPerson: { low: 560, balance: 980, exp: 1700 },
     days: [
       {
@@ -272,6 +293,243 @@ export const DESTINATIONS: Destination[] = [
           { t: "12:30", kind: "cable", place: "Castillo San Felipe", desc: "Fortaleza colonial con túneles y vistas de la bahía.", dur: "1.5h", baseCost: 9, tags: ["Cultura", "Aventura"], pin: { x: 0.5, y: 0.44 }, nav: { min: 12, mode: "taxi", cost: 6 } },
           { t: "15:00", kind: "walk", place: "Las Bóvedas", desc: "Artesanías y mochilas wayúu en las antiguas bóvedas.", dur: "1h", baseCost: 28, costNote: "compras", tags: ["Shopping"], pin: { x: 0.6, y: 0.34 }, nav: { min: 8, mode: "walk" } },
           { t: "20:30", kind: "dinner", place: "Cena de cierre · Alma rooftop", desc: "Cocina caribeña de autor sobre los techos coloniales.", dur: "2h", baseCost: 40, tags: ["Gastronomía", "Vida nocturna", "Instagrameable"], pin: { x: 0.46, y: 0.5 }, nav: { min: 10, mode: "walk" } },
+        ],
+      },
+    ],
+  },
+  {
+    id: "cancun",
+    name: "Cancún & Riviera Maya",
+    country: "México",
+    flag: "🇲🇽",
+    region: "Caribe",
+    blurb: "Caribe turquesa, cenotes y fiesta hasta el amanecer.",
+    cover: "linear-gradient(180deg, #2BD2C4 0%, #2AA7C9 45%, #5E7FC0 80%, #C98BB0 100%)",
+    trending: true,
+    vibeTags: ["Playa", "Vida nocturna", "Aventura", "Instagrameable"],
+    climate: "calor",
+    perPerson: { low: 700, balance: 1250, exp: 2300 },
+    days: [
+      {
+        theme: "Playa Norte y noche en la Zona Hotelera",
+        mood: "beach",
+        highlights: [
+          { ico: "umbrella", l: "Playa Delfines" },
+          { ico: "utensils", l: "Tacos al pastor" },
+          { ico: "music", l: "Antros" },
+        ],
+        stops: [
+          { t: "10:00", kind: "beach", place: "Playa Delfines", desc: "El letrero de Cancún y agua imposiblemente turquesa.", dur: "3h", baseCost: 0, costNote: "camastro $8", tags: ["Playa", "Relax", "Instagrameable"], pin: { x: 0.3, y: 0.4 }, nav: { min: 12, mode: "taxi", cost: 7 } },
+          { t: "14:00", kind: "food", place: "Tacos en El Pastorcito", desc: "Al pastor de trompo y agua de jamaica. Local de verdad.", dur: "1h", baseCost: 12, tags: ["Gastronomía"], pin: { x: 0.42, y: 0.5 }, nav: { min: 15, mode: "taxi", cost: 8 } },
+          { t: "18:00", kind: "sunset", place: "Mirador Scenic Tower", desc: "Vista 360° de la laguna Nichupté al atardecer.", dur: "1h", baseCost: 14, tags: ["Instagrameable", "Relax"], pin: { x: 0.55, y: 0.36 }, nav: { min: 10, mode: "taxi", cost: 6 } },
+          { t: "23:00", kind: "bar", place: "Coco Bongo", desc: "Show, acrobacias y antro mítico de la Zona Hotelera.", dur: "3h+", baseCost: 40, tags: ["Vida nocturna"], pin: { x: 0.6, y: 0.5 }, nav: { min: 14, mode: "taxi", cost: 9 } },
+        ],
+      },
+      {
+        theme: "Cenotes y ruinas de Tulum",
+        mood: "mountain",
+        highlights: [
+          { ico: "landmark", l: "Ruinas Tulum" },
+          { ico: "mountain", l: "Cenote Dos Ojos" },
+          { ico: "utensils", l: "Beach club" },
+        ],
+        stops: [
+          { t: "08:00", kind: "taxi", place: "Ruta a Tulum", desc: "2 hs de carretera entre selva hasta la costa maya.", dur: "2h", baseCost: 25, tags: ["Aventura"], pin: { x: 0.28, y: 0.3 }, nav: { min: 120, mode: "taxi", cost: 30 } },
+          { t: "10:30", kind: "walk", place: "Zona arqueológica de Tulum", desc: "La única ciudad maya frente al mar Caribe.", dur: "1.5h", baseCost: 12, tags: ["Cultura", "Instagrameable"], pin: { x: 0.44, y: 0.42 }, nav: { min: 20, mode: "taxi", cost: 10 } },
+          { t: "13:00", kind: "cable", place: "Cenote Dos Ojos", desc: "Nadar en agua dulce cristalina dentro de una cueva.", dur: "2h", baseCost: 18, tags: ["Aventura", "Instagrameable"], pin: { x: 0.56, y: 0.55 }, nav: { min: 25, mode: "taxi", cost: 12 } },
+          { t: "18:00", kind: "dinner", place: "Beach club Tulum", desc: "Atardecer descalzo, ceviche y mezcal.", dur: "2h", baseCost: 35, tags: ["Gastronomía", "Relax", "Instagrameable"], pin: { x: 0.5, y: 0.62 }, nav: { min: 18, mode: "taxi", cost: 9 } },
+        ],
+      },
+      {
+        theme: "Isla Mujeres y despedida",
+        mood: "beach",
+        highlights: [
+          { ico: "umbrella", l: "Playa Norte" },
+          { ico: "shopping-bag", l: "Carrito de golf" },
+          { ico: "wine", l: "Cena al mar" },
+        ],
+        stops: [
+          { t: "09:30", kind: "taxi", place: "Ferry a Isla Mujeres", desc: "30 min de ferry desde Puerto Juárez.", dur: "30m", baseCost: 12, tags: ["Aventura"], pin: { x: 0.3, y: 0.34 }, nav: { min: 30, mode: "bus", cost: 6 } },
+          { t: "11:00", kind: "beach", place: "Playa Norte", desc: "Top playas del Caribe: arena blanca, agua sin olas.", dur: "3h", baseCost: 0, costNote: "carrito $25", tags: ["Playa", "Relax", "Instagrameable"], pin: { x: 0.45, y: 0.5 }, nav: { min: 10, mode: "walk" } },
+          { t: "15:00", kind: "food", place: "Marisquería en el centro", desc: "Pescado a la talla y guacamole frente al malecón.", dur: "1.5h", baseCost: 20, tags: ["Gastronomía"], pin: { x: 0.55, y: 0.4 }, nav: { min: 8, mode: "walk" } },
+          { t: "20:00", kind: "dinner", place: "Cena de cierre · Lola Valentina", desc: "Cocina mexicana de autor y margaritas de mango.", dur: "2h", baseCost: 32, tags: ["Gastronomía", "Vida nocturna"], pin: { x: 0.5, y: 0.46 }, nav: { min: 6, mode: "walk" } },
+        ],
+      },
+    ],
+  },
+  {
+    id: "cusco",
+    name: "Cusco & Machu Picchu",
+    country: "Perú",
+    flag: "🇵🇪",
+    region: "Sudamérica",
+    blurb: "Andes, ruinas incas y la maravilla del mundo.",
+    cover: "linear-gradient(180deg, #C98A5E 0%, #A86B6B 40%, #6B5B8E 75%, #2E3A5E 100%)",
+    trending: true,
+    vibeTags: ["Aventura", "Cultura", "Instagrameable", "Gastronomía"],
+    climate: "frio",
+    perPerson: { low: 520, balance: 950, exp: 1700 },
+    days: [
+      {
+        theme: "Cusco colonial y San Blas",
+        mood: "mountain",
+        highlights: [
+          { ico: "landmark", l: "Plaza de Armas" },
+          { ico: "building", l: "Barrio San Blas" },
+          { ico: "utensils", l: "Cuy y pisco" },
+        ],
+        stops: [
+          { t: "09:00", kind: "coffee", place: "Café en la Plaza de Armas", desc: "Mate de coca para la altura y vista a la catedral.", dur: "45m", baseCost: 6, tags: ["Relax"], pin: { x: 0.3, y: 0.32 }, nav: { min: 10, mode: "walk" } },
+          { t: "10:30", kind: "walk", place: "Qorikancha y San Blas", desc: "Muros incas, callecitas empedradas y talleres de arte.", dur: "2h", baseCost: 8, tags: ["Cultura", "Instagrameable"], pin: { x: 0.44, y: 0.42 }, nav: { min: 12, mode: "walk" } },
+          { t: "13:30", kind: "food", place: "Mercado San Pedro", desc: "Jugos, quesos andinos y el cuy si te animás.", dur: "1.5h", baseCost: 12, tags: ["Gastronomía"], pin: { x: 0.52, y: 0.52 }, nav: { min: 14, mode: "taxi", cost: 5 } },
+          { t: "20:00", kind: "dinner", place: "Cicciolina", desc: "Cocina andina de autor y pisco sour. Reservá.", dur: "2h", baseCost: 30, tags: ["Gastronomía"], pin: { x: 0.46, y: 0.38 }, nav: { min: 8, mode: "walk" } },
+        ],
+      },
+      {
+        theme: "Valle Sagrado",
+        mood: "mountain",
+        highlights: [
+          { ico: "mountain", l: "Pisac" },
+          { ico: "landmark", l: "Ollantaytambo" },
+          { ico: "shopping-bag", l: "Mercado artesanal" },
+        ],
+        stops: [
+          { t: "08:00", kind: "taxi", place: "Camino al Valle Sagrado", desc: "Paisaje de terrazas incas y picos nevados.", dur: "1h", baseCost: 20, tags: ["Aventura", "Instagrameable"], pin: { x: 0.28, y: 0.3 }, nav: { min: 60, mode: "taxi", cost: 18 } },
+          { t: "10:00", kind: "walk", place: "Ruinas de Pisac", desc: "Terrazas colgadas de la montaña y mercado abajo.", dur: "2h", baseCost: 14, tags: ["Cultura", "Aventura"], pin: { x: 0.45, y: 0.4 }, nav: { min: 30, mode: "taxi", cost: 10 } },
+          { t: "14:00", kind: "food", place: "Almuerzo en Urubamba", desc: "Trucha del río y choclo con queso, vista al valle.", dur: "1.5h", baseCost: 16, tags: ["Gastronomía"], pin: { x: 0.55, y: 0.55 }, nav: { min: 25, mode: "taxi", cost: 9 } },
+          { t: "17:00", kind: "cable", place: "Fortaleza de Ollantaytambo", desc: "Subís los andenes y dormís acá para tomar el tren.", dur: "1.5h", baseCost: 14, tags: ["Cultura", "Instagrameable"], pin: { x: 0.6, y: 0.36 }, nav: { min: 20, mode: "taxi", cost: 8 } },
+        ],
+      },
+      {
+        theme: "Machu Picchu",
+        mood: "mountain",
+        highlights: [
+          { ico: "mountain", l: "Machu Picchu" },
+          { ico: "landmark", l: "Tren panorámico" },
+          { ico: "utensils", l: "Aguas Calientes" },
+        ],
+        stops: [
+          { t: "06:00", kind: "cable", place: "Tren a Aguas Calientes", desc: "Tren panorámico siguiendo el río Urubamba.", dur: "1.5h", baseCost: 65, tags: ["Aventura", "Instagrameable"], pin: { x: 0.3, y: 0.5 }, nav: { min: 90, mode: "bus", cost: 0 } },
+          { t: "09:00", kind: "walk", place: "Ciudadela de Machu Picchu", desc: "La maravilla inca entre nubes. Guía local incluido.", dur: "3h", baseCost: 55, tags: ["Cultura", "Aventura", "Instagrameable"], pin: { x: 0.48, y: 0.34 }, nav: { min: 25, mode: "bus", cost: 12 } },
+          { t: "14:00", kind: "food", place: "Almuerzo en Aguas Calientes", desc: "Lomo saltado merecido después de la caminata.", dur: "1.5h", baseCost: 18, tags: ["Gastronomía"], pin: { x: 0.55, y: 0.5 }, nav: { min: 20, mode: "walk" } },
+          { t: "17:00", kind: "cable", place: "Tren de regreso a Cusco", desc: "Vuelta con el atardecer sobre los Andes.", dur: "3h", baseCost: 0, tags: ["Relax"], pin: { x: 0.6, y: 0.6 }, nav: null },
+        ],
+      },
+    ],
+  },
+  {
+    id: "lisboa",
+    name: "Lisboa",
+    country: "Portugal",
+    flag: "🇵🇹",
+    region: "Europa",
+    blurb: "Miradores, pastéis de nata y fado al anochecer.",
+    cover: "linear-gradient(180deg, #F2C57C 0%, #E89B7B 40%, #C97A8E 75%, #5E6FA6 100%)",
+    vibeTags: ["Cultura", "Gastronomía", "Instagrameable", "Vida nocturna"],
+    climate: "templado",
+    perPerson: { low: 780, balance: 1300, exp: 2200 },
+    days: [
+      {
+        theme: "Alfama, miradores y fado",
+        mood: "night",
+        highlights: [
+          { ico: "building", l: "Alfama" },
+          { ico: "landmark", l: "Tranvía 28" },
+          { ico: "music", l: "Casa de fado" },
+        ],
+        stops: [
+          { t: "09:30", kind: "coffee", place: "Pastéis de Belém", desc: "El pastel de nata original, tibio y con canela.", dur: "1h", baseCost: 8, tags: ["Gastronomía"], pin: { x: 0.28, y: 0.34 }, nav: { min: 18, mode: "taxi", cost: 8 } },
+          { t: "11:30", kind: "cable", place: "Tranvía 28 por Alfama", desc: "El histórico amarillo trepando el barrio más viejo.", dur: "1h", baseCost: 4, tags: ["Cultura", "Instagrameable"], pin: { x: 0.42, y: 0.44 }, nav: { min: 12, mode: "walk" } },
+          { t: "13:30", kind: "food", place: "Time Out Market", desc: "Los mejores chefs de Lisboa bajo un mismo techo.", dur: "1.5h", baseCost: 22, tags: ["Gastronomía"], pin: { x: 0.5, y: 0.52 }, nav: { min: 14, mode: "taxi", cost: 7 } },
+          { t: "18:00", kind: "sunset", place: "Miradouro da Senhora do Monte", desc: "La mejor panorámica de los tejados al atardecer.", dur: "1h", baseCost: 0, tags: ["Instagrameable", "Relax"], pin: { x: 0.58, y: 0.32 }, nav: { min: 16, mode: "taxi", cost: 8 } },
+          { t: "21:00", kind: "bar", place: "Casa de fado en Alfama", desc: "Cena con fado en vivo. Piel de gallina garantizada.", dur: "2h+", baseCost: 35, tags: ["Cultura", "Vida nocturna"], pin: { x: 0.46, y: 0.48 }, nav: { min: 10, mode: "walk" } },
+        ],
+      },
+      {
+        theme: "Sintra de cuento",
+        mood: "mountain",
+        highlights: [
+          { ico: "building", l: "Palacio da Pena" },
+          { ico: "landmark", l: "Quinta da Regaleira" },
+          { ico: "utensils", l: "Travesseiros" },
+        ],
+        stops: [
+          { t: "08:30", kind: "taxi", place: "Tren a Sintra", desc: "40 min hasta el pueblo de palacios entre la sierra.", dur: "40m", baseCost: 6, tags: ["Aventura"], pin: { x: 0.3, y: 0.3 }, nav: { min: 40, mode: "bus", cost: 5 } },
+          { t: "10:00", kind: "cable", place: "Palacio da Pena", desc: "Castillo de colores sobre la niebla. Pura fantasía.", dur: "2h", baseCost: 16, tags: ["Cultura", "Instagrameable"], pin: { x: 0.46, y: 0.4 }, nav: { min: 15, mode: "taxi", cost: 8 } },
+          { t: "13:00", kind: "walk", place: "Quinta da Regaleira", desc: "Pozo iniciático y jardines de símbolos masones.", dur: "2h", baseCost: 14, tags: ["Cultura", "Aventura", "Instagrameable"], pin: { x: 0.56, y: 0.5 }, nav: { min: 12, mode: "walk" } },
+          { t: "16:30", kind: "coffee", place: "Travesseiros de Piriquita", desc: "El hojaldre relleno de almendra que hizo famoso al pueblo.", dur: "45m", baseCost: 7, tags: ["Gastronomía"], pin: { x: 0.5, y: 0.44 }, nav: { min: 8, mode: "walk" } },
+        ],
+      },
+      {
+        theme: "Baixa, shopping y despedida",
+        mood: "food",
+        highlights: [
+          { ico: "shopping-bag", l: "Chiado" },
+          { ico: "landmark", l: "Elevador Santa Justa" },
+          { ico: "wine", l: "Vinho verde" },
+        ],
+        stops: [
+          { t: "10:30", kind: "walk", place: "Elevador de Santa Justa", desc: "Ascensor de hierro de 1902 con vista a la Baixa.", dur: "1h", baseCost: 6, tags: ["Cultura", "Instagrameable"], pin: { x: 0.3, y: 0.4 }, nav: { min: 10, mode: "walk" } },
+          { t: "12:00", kind: "walk", place: "Compras en Chiado", desc: "Librería Bertrand, marcas portuguesas y azulejos.", dur: "2h", baseCost: 30, costNote: "compras", tags: ["Shopping"], pin: { x: 0.45, y: 0.48 }, nav: { min: 8, mode: "walk" } },
+          { t: "15:00", kind: "food", place: "Almuerzo de bacalhau", desc: "Bacalao à brás en una tasca de toda la vida.", dur: "1.5h", baseCost: 20, tags: ["Gastronomía"], pin: { x: 0.55, y: 0.42 }, nav: { min: 10, mode: "walk" } },
+          { t: "19:00", kind: "dinner", place: "Cena de cierre · Pink Street", desc: "Vinho verde y bares en la Rua Nova do Carvalho.", dur: "2h", baseCost: 28, tags: ["Vida nocturna", "Gastronomía"], pin: { x: 0.5, y: 0.55 }, nav: { min: 12, mode: "taxi", cost: 6 } },
+        ],
+      },
+    ],
+  },
+  {
+    id: "floripa",
+    name: "Florianópolis",
+    country: "Brasil",
+    flag: "🇧🇷",
+    region: "Sudamérica",
+    blurb: "Isla de 42 playas, surf, lagoa y trilhas.",
+    cover: "linear-gradient(180deg, #5ED0A8 0%, #3EB0C0 45%, #5E8FC0 80%, #C9A05E 100%)",
+    vibeTags: ["Playa", "Relax", "Aventura", "Vida nocturna"],
+    climate: "calor",
+    perPerson: { low: 450, balance: 800, exp: 1450 },
+    days: [
+      {
+        theme: "Sur de la isla: playas y trilha",
+        mood: "beach",
+        highlights: [
+          { ico: "umbrella", l: "Praia Mole" },
+          { ico: "mountain", l: "Trilha Lagoinha" },
+          { ico: "utensils", l: "Frutos de mar" },
+        ],
+        stops: [
+          { t: "10:00", kind: "beach", place: "Praia Mole", desc: "La playa de los surfistas y la movida joven.", dur: "3h", baseCost: 0, costNote: "barraca $6", tags: ["Playa", "Relax"], pin: { x: 0.3, y: 0.42 }, nav: { min: 20, mode: "taxi", cost: 9 } },
+          { t: "14:00", kind: "food", place: "Almuerzo en Barra da Lagoa", desc: "Camarón en moqueca al borde del canal.", dur: "1.5h", baseCost: 18, tags: ["Gastronomía", "Playa"], pin: { x: 0.45, y: 0.5 }, nav: { min: 18, mode: "taxi", cost: 8 } },
+          { t: "17:00", kind: "sunset", place: "Mirador Lagoa da Conceição", desc: "Atardecer sobre la laguna desde lo alto.", dur: "1h", baseCost: 0, tags: ["Instagrameable", "Relax"], pin: { x: 0.55, y: 0.36 }, nav: { min: 15, mode: "taxi", cost: 7 } },
+          { t: "22:00", kind: "bar", place: "Bares de Lagoa", desc: "Caipirinha y música a la orilla de la lagoa.", dur: "2h+", baseCost: 18, tags: ["Vida nocturna"], pin: { x: 0.5, y: 0.46 }, nav: { min: 10, mode: "taxi", cost: 5 } },
+        ],
+      },
+      {
+        theme: "Norte chic e Ilha do Campeche",
+        mood: "beach",
+        highlights: [
+          { ico: "umbrella", l: "Jurerê" },
+          { ico: "mountain", l: "Ilha do Campeche" },
+          { ico: "wine", l: "Beach club" },
+        ],
+        stops: [
+          { t: "09:30", kind: "taxi", place: "Lancha a Ilha do Campeche", desc: "El 'Caribe brasileño': agua transparente y trilha.", dur: "45m", baseCost: 30, tags: ["Aventura", "Playa", "Instagrameable"], pin: { x: 0.3, y: 0.34 }, nav: { min: 30, mode: "bus", cost: 8 } },
+          { t: "11:00", kind: "beach", place: "Praia do Campeche", desc: "Arena blanca, snorkel y nada de construcción.", dur: "3h", baseCost: 0, tags: ["Playa", "Relax"], pin: { x: 0.45, y: 0.55 }, nav: { min: 10, mode: "walk" } },
+          { t: "16:00", kind: "dinner", place: "Beach club en Jurerê", desc: "Música, piscina y el atardecer más fancy de la isla.", dur: "3h", baseCost: 35, tags: ["Vida nocturna", "Relax", "Instagrameable"], pin: { x: 0.55, y: 0.4 }, nav: { min: 25, mode: "taxi", cost: 12 } },
+        ],
+      },
+      {
+        theme: "Centro, mercado y despedida",
+        mood: "food",
+        highlights: [
+          { ico: "utensils", l: "Mercado Público" },
+          { ico: "shopping-bag", l: "Largo da Alfândega" },
+          { ico: "wine", l: "Ostras de Ribeirão" },
+        ],
+        stops: [
+          { t: "10:30", kind: "walk", place: "Mercado Público de Floripa", desc: "Box 32: pastel de camarón y caldito de la casa.", dur: "1.5h", baseCost: 14, tags: ["Gastronomía", "Cultura"], pin: { x: 0.3, y: 0.4 }, nav: { min: 15, mode: "taxi", cost: 7 } },
+          { t: "13:00", kind: "food", place: "Ostras en Ribeirão da Ilha", desc: "El pueblito azoriano famoso por sus ostras frescas.", dur: "2h", baseCost: 24, tags: ["Gastronomía", "Instagrameable"], pin: { x: 0.45, y: 0.52 }, nav: { min: 30, mode: "taxi", cost: 14 } },
+          { t: "17:00", kind: "sunset", place: "Pôr do sol en Ribeirão", desc: "Despedida con el sol cayendo sobre la bahía sur.", dur: "1h", baseCost: 0, tags: ["Relax", "Instagrameable"], pin: { x: 0.55, y: 0.6 }, nav: null },
         ],
       },
     ],
@@ -431,3 +689,132 @@ export function generateTrip(input: TripInput): Trip {
 
 // silence unused warning for MONTHS helper consumers
 export const MONTH_LIST = MONTHS;
+
+// ── Quiz "¿Qué viaje sos?" ───────────────────────────────────
+export interface QuizOption {
+  label: string;
+  emoji: string;
+  weights?: Partial<Record<Interest, number>>;
+  climate?: Climate;
+  budget?: BudgetKey;
+}
+
+export interface QuizQuestion {
+  id: string;
+  q: string;
+  options: QuizOption[];
+}
+
+export const QUIZ: QuizQuestion[] = [
+  {
+    id: "vibe",
+    q: "¿Qué te hace decir “qué buen viaje”?",
+    options: [
+      { label: "Playa y no hacer nada", emoji: "🏖️", weights: { Playa: 3, Relax: 2 }, climate: "calor" },
+      { label: "Historia, museos, callecitas", emoji: "🎭", weights: { Cultura: 3, Instagrameable: 1 }, climate: "templado" },
+      { label: "Aventura y naturaleza", emoji: "🥾", weights: { Aventura: 3, Instagrameable: 1 }, climate: "frio" },
+      { label: "Comer y tomar increíble", emoji: "🍽️", weights: { Gastronomía: 3, "Vida nocturna": 1 } },
+    ],
+  },
+  {
+    id: "noche",
+    q: "Tu noche ideal en viaje:",
+    options: [
+      { label: "Salir hasta cualquier hora", emoji: "🌙", weights: { "Vida nocturna": 3 } },
+      { label: "Cena tranqui y a dormir", emoji: "🍷", weights: { Gastronomía: 2, Relax: 2 } },
+      { label: "Mirador, fogón, al aire libre", emoji: "🔥", weights: { Aventura: 2, Relax: 1 } },
+      { label: "Rooftop bien instagrameable", emoji: "📸", weights: { Instagrameable: 3, "Vida nocturna": 1 } },
+    ],
+  },
+  {
+    id: "clima",
+    q: "El clima que buscás:",
+    options: [
+      { label: "Calor y playa", emoji: "☀️", weights: { Playa: 2 }, climate: "calor" },
+      { label: "Templado, primaveral", emoji: "🍂", weights: { Cultura: 1 }, climate: "templado" },
+      { label: "Fresco, de montaña", emoji: "🏔️", weights: { Aventura: 2 }, climate: "frio" },
+    ],
+  },
+  {
+    id: "con",
+    q: "¿Con quién viajás?",
+    options: [
+      { label: "En pareja", emoji: "💑", weights: { Relax: 1, Gastronomía: 1 } },
+      { label: "Con amigos", emoji: "👯", weights: { "Vida nocturna": 2 } },
+      { label: "Solo/a", emoji: "🧍", weights: { Cultura: 1, Aventura: 1 } },
+      { label: "En familia", emoji: "👨‍👩‍👧", weights: { Relax: 1, Playa: 1 } },
+    ],
+  },
+  {
+    id: "must",
+    q: "Lo que no puede faltar:",
+    options: [
+      { label: "Un poco de shopping", emoji: "🛍️", weights: { Shopping: 3 } },
+      { label: "Fotos épicas", emoji: "📸", weights: { Instagrameable: 3 } },
+      { label: "Mercados y comida local", emoji: "🍜", weights: { Gastronomía: 3 } },
+      { label: "Mar, agua, naturaleza", emoji: "🌊", weights: { Playa: 3 } },
+    ],
+  },
+  {
+    id: "presu",
+    q: "Tu presupuesto por persona (sin vuelos):",
+    options: [
+      { label: "Low-cost · USD 450–700", emoji: "💸", budget: "low" },
+      { label: "Balance · USD 800–1200", emoji: "⚖️", budget: "balance" },
+      { label: "Experiencia · USD 1400+", emoji: "✨", budget: "exp" },
+    ],
+  },
+];
+
+export interface QuizScore {
+  dest: Destination;
+  score: number;
+}
+
+export interface QuizResult {
+  destId: string;
+  budget: BudgetKey;
+  interests: Interest[];
+  scores: QuizScore[]; // sorted desc
+}
+
+// Score every destination against the quiz answers and recommend the best fit.
+export function recommendFromQuiz(answers: QuizOption[]): QuizResult {
+  const weights: Partial<Record<Interest, number>> = {};
+  const climate: Partial<Record<Climate, number>> = {};
+  let budget: BudgetKey = "balance";
+
+  answers.forEach((o) => {
+    if (o.weights) {
+      (Object.entries(o.weights) as [Interest, number][]).forEach(([k, v]) => {
+        weights[k] = (weights[k] ?? 0) + v;
+      });
+    }
+    if (o.climate) climate[o.climate] = (climate[o.climate] ?? 0) + 1;
+    if (o.budget) budget = o.budget;
+  });
+
+  const interests = (Object.entries(weights) as [Interest, number][])
+    .sort((a, b) => b[1] - a[1])
+    .filter(([, v]) => v > 0)
+    .slice(0, 4)
+    .map(([k]) => k);
+
+  const topClimate = (Object.entries(climate).sort((a, b) => b[1] - a[1])[0]?.[0] as Climate | undefined) ?? undefined;
+
+  const scores: QuizScore[] = DESTINATIONS.map((d) => {
+    let s = d.vibeTags.reduce((a, t) => a + (weights[t] ?? 0), 0);
+    if (topClimate && d.climate === topClimate) s += 4;
+    if (d.trending) s += 0.5;
+    if (budget === "low") s += (1500 - d.perPerson.low) / 300; // bias toward cheaper
+    if (budget === "exp") s += (d.perPerson.exp - 1500) / 600; // bias toward premium
+    return { dest: d, score: s };
+  }).sort((a, b) => b.score - a.score);
+
+  return {
+    destId: scores[0].dest.id,
+    budget,
+    interests: interests.length ? interests : ["Playa"],
+    scores,
+  };
+}

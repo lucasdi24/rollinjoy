@@ -100,6 +100,12 @@ export default function SplashPage() {
           <Btn kind="pop" size="lg" block onClick={() => router.push("/rollin-joy/nuevo")} iconRight="arrow-right">
             Empezá tu viaje
           </Btn>
+          <button
+            onClick={() => router.push("/rollin-joy/test")}
+            style={{ width: "100%", marginTop: 10, background: "transparent", border: "none", cursor: "pointer", fontFamily: RJ.sans, fontSize: 13, color: RJ.teal, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+          >
+            <span>✨</span> ¿No sabés a dónde ir? Hacé el test
+          </button>
           {ready && trip && (
             <button
               onClick={() => router.push("/rollin-joy/viaje")}

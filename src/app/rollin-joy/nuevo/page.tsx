@@ -11,13 +11,41 @@ const MONTH_FULL = "abril";
 
 export default function NuevoPage() {
   const router = useRouter();
-  const { input, generate } = useTrip();
+  const { input, generate, ready } = useTrip();
 
   const [destId, setDestId] = React.useState(input.destId);
   const [nights, setNights] = React.useState(input.nights);
   const [people, setPeople] = React.useState(input.people);
   const [budget, setBudget] = React.useState<BudgetKey>(input.budget);
   const [picked, setPicked] = React.useState<Set<Interest>>(new Set(input.interests));
+  const [destSearch, setDestSearch] = React.useState("");
+
+  // Adopt the persisted input once it finishes hydrating (handles full reloads).
+  const synced = React.useRef(false);
+  React.useEffect(() => {
+    if (!ready || synced.current) return;
+    synced.current = true;
+    setDestId(input.destId);
+    setNights(input.nights);
+    setPeople(input.people);
+    setBudget(input.budget);
+    setPicked(new Set(input.interests));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready]);
+
+  // Order destinations: best match to chosen interests first, then trending.
+  const orderedDests = React.useMemo(() => {
+    const q = destSearch.trim().toLowerCase();
+    const scored = DESTINATIONS.map((d) => {
+      const overlap = d.vibeTags.filter((t) => picked.has(t)).length;
+      return { d, score: overlap * 10 + (d.trending ? 1 : 0) };
+    });
+    scored.sort((a, b) => b.score - a.score);
+    let list = scored.map((s) => s.d);
+    if (q) list = list.filter((d) => `${d.name} ${d.country} ${d.region}`.toLowerCase().includes(q));
+    return list;
+  }, [picked, destSearch]);
+  const topRecId = orderedDests[0]?.id;
 
   const dest = DESTINATIONS.find((d) => d.id === destId) ?? DESTINATIONS[0];
   const maxNights = dest.days.length;
@@ -63,9 +91,52 @@ export default function NuevoPage() {
           <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 18 }}>
             {/* 1 destino */}
             <QField idx="1" q="¿A dónde vas?">
+              {/* test shortcut */}
+              <button
+                onClick={() => router.push("/rollin-joy/test")}
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  background: RJ.teal,
+                  color: RJ.vanilla,
+                  border: "none",
+                  borderRadius: 16,
+                  padding: "12px 14px",
+                  cursor: "pointer",
+                  marginBottom: 10,
+                  textAlign: "left",
+                }}
+              >
+                <span style={{ fontSize: 20 }}>✨</span>
+                <span style={{ flex: 1 }}>
+                  <span style={{ display: "block", fontFamily: RJ.display, fontWeight: 800, fontSize: 14, letterSpacing: "-0.01em" }}>¿No sabés a dónde ir?</span>
+                  <span style={{ display: "block", fontFamily: RJ.sans, fontSize: 11.5, color: RJ.tealSoft, marginTop: 1 }}>Hacé el test y Joy te recomienda según tu perfil</span>
+                </span>
+                <Ico n="arrow-right" s={18} c={RJ.yellow} />
+              </button>
+
+              {/* search */}
+              <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#fff", border: `1.5px solid ${RJ.line}`, borderRadius: 12, padding: "8px 12px", marginBottom: 10 }}>
+                <Ico n="map-pin" s={16} c={RJ.inkFaint} />
+                <input
+                  value={destSearch}
+                  onChange={(e) => setDestSearch(e.target.value)}
+                  placeholder="Buscá país o destino…"
+                  style={{ flex: 1, border: "none", outline: "none", background: "transparent", fontFamily: RJ.sans, fontSize: 13.5, color: RJ.ink }}
+                />
+                {destSearch && (
+                  <button onClick={() => setDestSearch("")} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", color: RJ.inkFaint }}>
+                    <Ico n="x" s={15} c={RJ.inkFaint} />
+                  </button>
+                )}
+              </div>
+
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {DESTINATIONS.map((d) => {
+                {orderedDests.map((d) => {
                   const on = d.id === destId;
+                  const rec = d.id === topRecId && !destSearch && picked.size > 0;
                   return (
                     <div
                       key={d.id}
@@ -85,17 +156,26 @@ export default function NuevoPage() {
                         transition: "all 160ms",
                       }}
                     >
-                      <div style={{ width: 42, height: 42, borderRadius: 12, background: d.cover, flexShrink: 0, boxShadow: "inset 0 0 0 1px rgba(14,42,48,0.08)" }} />
+                      <div style={{ position: "relative", flexShrink: 0 }}>
+                        <div style={{ width: 46, height: 46, borderRadius: 12, background: d.cover, boxShadow: "inset 0 0 0 1px rgba(14,42,48,0.08)" }} />
+                        <span style={{ position: "absolute", bottom: -4, right: -4, fontSize: 15, lineHeight: 1, filter: "drop-shadow(0 1px 1px rgba(0,0,0,0.2))" }}>{d.flag}</span>
+                      </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontFamily: RJ.sans, fontSize: 14, fontWeight: 700, color: RJ.ink }}>
-                          {d.name}, {d.country}
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                          <span style={{ fontFamily: RJ.sans, fontSize: 14, fontWeight: 700, color: RJ.ink }}>{d.name}</span>
+                          {rec && <span style={badge(RJ.yellow, RJ.teal)}>Para vos</span>}
+                          {d.trending && !rec && <span style={badge(RJ.tealWash, RJ.teal)}>🔥 Tendencia</span>}
                         </div>
-                        <div style={{ fontFamily: RJ.sans, fontSize: 11.5, color: RJ.inkMuted, lineHeight: 1.35, marginTop: 1 }}>{d.blurb}</div>
+                        <div style={{ fontFamily: RJ.sans, fontSize: 11, color: RJ.inkMuted, lineHeight: 1.35, marginTop: 2 }}>{d.blurb}</div>
+                        <div style={{ fontFamily: RJ.sans, fontSize: 11, color: RJ.teal, fontWeight: 700, marginTop: 3 }}>desde USD {d.perPerson[budget]} pp</div>
                       </div>
                       <Ico n={on ? "check" : "chevron-right"} s={18} c={on ? RJ.teal : RJ.inkFaint} />
                     </div>
                   );
                 })}
+                {orderedDests.length === 0 && (
+                  <div style={{ fontFamily: RJ.sans, fontSize: 12.5, color: RJ.inkMuted, padding: "8px 2px" }}>No encontramos ese destino… probá con otro nombre.</div>
+                )}
               </div>
             </QField>
 
@@ -209,6 +289,21 @@ export default function NuevoPage() {
       </BottomBar>
     </Shell>
   );
+}
+
+function badge(bg: string, fg: string): React.CSSProperties {
+  return {
+    fontFamily: RJ.sans,
+    fontSize: 9,
+    fontWeight: 800,
+    letterSpacing: "0.06em",
+    textTransform: "uppercase",
+    color: fg,
+    background: bg,
+    padding: "2px 7px",
+    borderRadius: 999,
+    whiteSpace: "nowrap",
+  };
 }
 
 function QField({ idx, q, children }: { idx: string; q: string; children: React.ReactNode }) {
